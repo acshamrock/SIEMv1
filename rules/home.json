@@ -1,0 +1,49 @@
+[
+  {
+    "id": "failed-logins-01",
+    "name": "Excessive failed logins",
+    "rule_type": "failed_login_threshold",
+    "description": "Detects repeated failed authentication attempts against home services.",
+    "severity": "high",
+    "enabled": true,
+    "parameters": {
+      "event_category": "auth",
+      "match_field": "result",
+      "match_value": "failed",
+      "group_by": "username",
+      "threshold": 3,
+      "window_minutes": 15
+    },
+    "remediation": "Lock the affected account and reset the password if necessary."
+  },
+  {
+    "id": "port-scan-01",
+    "name": "Port scan detection",
+    "rule_type": "port_scan",
+    "description": "Detects potential port scanning from a single source on the home network.",
+    "severity": "medium",
+    "enabled": true,
+    "parameters": {
+      "event_category": "network",
+      "group_by": "src_ip",
+      "distinct_field": "dest_port",
+      "threshold": 10,
+      "window_minutes": 3
+    },
+    "remediation": "Block the offending IP at the firewall and investigate the device."
+  },
+  {
+    "id": "dns-anomaly-01",
+    "name": "Suspicious DNS domain",
+    "rule_type": "dns_anomaly",
+    "description": "Detects suspicious DNS queries that may indicate tunneling.",
+    "severity": "medium",
+    "enabled": true,
+    "parameters": {
+      "event_category": "dns",
+      "length_threshold": 45,
+      "entropy_threshold": 3.8
+    },
+    "remediation": "Inspect the device for malware and block the domain if confirmed malicious."
+  }
+]
