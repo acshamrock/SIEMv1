@@ -1,1 +1,46 @@
-Just messing around :)
+# Home Network SIEM
+
+This project provides a lightweight Security Information and Event Management (SIEM) pipeline tailored for home-lab and small network environments. The goal is to centralize log ingestion, normalize telemetry, evaluate detection logic, and surface actionable alerts that help protect a household network.
+
+## Features
+
+- **Log ingestion** – Reads newline-delimited JSON logs exported from network appliances, NAS devices, or self-hosted services.
+- **Normalization** – Converts raw log lines into a consistent event schema containing timestamps, categories, and key details.
+- **Detection engine** – Applies rule-based detections to identify suspicious activity such as excessive failed logins, port scans, and DNS anomalies.
+- **Alerting** – Prints alerts to the console and optionally stores JSON artifacts for later review.
+- **Extensible** – Detection handlers and configuration files can be expanded to match the needs of your environment.
+
+## Quick start
+
+1. Create or export newline-delimited JSON logs from the devices you want to monitor. The repository includes [`sample_logs/sample.json`](sample_logs/sample.json) for demonstration.
+2. Review or edit the detection rules in [`rules/home.json`](rules/home.json). Add new rules by following the existing schema.
+3. Run the SIEM pipeline:
+
+   ```bash
+   python -m siem.main --logs sample_logs/sample.json --rules rules/home.json --alert-dir alerts
+   ```
+
+   The command prints alerts to the console and writes JSON copies to the `alerts/` directory.
+
+## Detection rule types
+
+| Rule type | Purpose | Key parameters |
+|-----------|---------|----------------|
+| `failed_login_threshold` | Detects brute-force attempts against home services. | `event_category`, `match_field`, `match_value`, `group_by`, `threshold`, `window_minutes` |
+| `port_scan` | Flags a host probing numerous ports in a short period. | `event_category`, `group_by`, `distinct_field`, `threshold`, `window_minutes` |
+| `dns_anomaly` | Identifies suspicious DNS domains with high length or entropy. | `event_category`, `length_threshold`, `entropy_threshold` |
+
+## Extending the SIEM
+
+- **Additional log sources:** Export router firewall logs, IDS alerts, or authentication logs in JSON format and point the `--logs` argument to those files.
+- **Custom detection logic:** Implement new handlers in `siem/detectors.py` and reference them from a rule file using a new `rule_type`.
+- **Notification channels:** Extend `siem/alerting.py` to forward alerts to email, chat webhooks, or a home automation hub.
+
+## Requirements
+
+- Python 3.11+
+- Dependencies listed in `requirements.txt` (install with `pip install -r requirements.txt`).
+
+## Disclaimer
+
+This SIEM is designed for educational and home-lab use. It does not replace enterprise-grade monitoring solutions but provides a foundation for experimenting with security monitoring at home.
